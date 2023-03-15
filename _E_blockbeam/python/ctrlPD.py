@@ -1,5 +1,5 @@
 import numpy as np
-import blockBeamParam as P
+import blockbeamParam as P
 
 
 class ctrlPD:

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
-import blockBeamParam as P
+import blockbeamParam as P
 from signalGenerator import signalGenerator
-from blockBeamAnimation import blockBeamAnimation
+from blockbeamAnimation import blockbeamAnimation
 from dataPlotter import dataPlotter
 from blockBeamDynamics import blockBeamDynamics
 

@@ -1,7 +1,7 @@
 #full state feedback
 import numpy as np
 import control as cnt
-import blockBeamParam as P
+import blockbeamParam as P
 
 
 
