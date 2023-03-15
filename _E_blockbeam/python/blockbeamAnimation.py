@@ -14,6 +14,8 @@ import blockbeamParam as P
 # matplotlib.use('gtk4cairo')  # requires pyGObject and pycairo
 # matplotlib.use('tkagg')  # requires TkInter
 # matplotlib.use('wxagg')  # requires wxPython
+import matplotlib
+matplotlib.use('tkagg')  # requires TkInter
 
 
 class blockbeamAnimation:

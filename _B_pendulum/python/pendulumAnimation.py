@@ -14,7 +14,8 @@ import pendulumParam as P
 # matplotlib.use('gtk4cairo')  # requires pyGObject and pycairo
 # matplotlib.use('tkagg')  # requires TkInter
 # matplotlib.use('wxagg')  # requires wxPython
-
+import matplotlib
+matplotlib.use('tkagg')  # requires TkInter
 
 class pendulumAnimation:
     def __init__(self):
