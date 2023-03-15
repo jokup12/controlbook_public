@@ -6,8 +6,8 @@ import VTOLParam as P
 
 class ctrlStateFeedback:
     def __init__(self):
-        trH = 5
-        zetaH = .707
+        trH = 3
+        zetaH = .99
         trTheta = .2
         zetaTheta = .707
         trZ = 10.0*trTheta
