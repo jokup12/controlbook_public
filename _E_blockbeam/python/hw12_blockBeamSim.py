@@ -6,13 +6,13 @@ from blockbeamAnimation import blockbeamAnimation
 from dataPlotter import dataPlotter
 from blockBeamDynamics import blockBeamDynamics
 from ctrlPID import ctrlPID
-from ctrlStateFeedback import ctrlStateFeedback
+from ctrlStateFeedbackIntegrator import ctrlStateFeedback
 
 # instantiate blockBeam, controller, and reference classes
-blockBeam = blockBeamDynamics(alpha=0.0)
+blockBeam = blockBeamDynamics(alpha=0.2)
 controller = ctrlStateFeedback()
 reference = signalGenerator(amplitude=.125, frequency=0.05, y_offset=.25)
-disturbance = signalGenerator(amplitude=0.0)
+disturbance = signalGenerator(amplitude=1.0)
 
 # instantiate the simulation plots and animation
 dataPlot = dataPlotter()
@@ -28,7 +28,7 @@ while t < P.t_end:  # main simulation loop
     # updates control and dynamics at faster simulation rate
     while t < t_next_plot:
         r = reference.square(t)
-        d = 0#disturbance.step(t)  # input disturbance
+        d = disturbance.step(t)  # input disturbance
         n = 0.0  #noise.random(t)  # simulate sensor noise
         x = blockBeam.state
         u = controller.update(r, x)  # update controller
