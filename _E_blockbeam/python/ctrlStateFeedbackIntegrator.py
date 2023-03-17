@@ -14,12 +14,12 @@ class ctrlStateFeedback:
         integrator_pole = .28
 
         wnTheta = np.pi / (2 * trTheta * np.sqrt(1 - zetaTheta**2))
-        des_char_poly_theta = (1, 2 * zetaTheta * wnTheta, wnTheta ** 2)
-        des_poles_theta = np.roots(des_char_poly_theta)
+        #des_char_poly_theta = (1, 2 * zetaTheta * wnTheta, wnTheta ** 2)
+        #des_poles_theta = np.roots(des_char_poly_theta)
 
         wnZ = np.pi / (2 * trZ * np.sqrt(1 - zetaZ ** 2))
-        des_char_poly_Z = (1, 2 * zetaZ * wnZ, wnZ ** 2)
-        des_poles_Z = np.roots(des_char_poly_Z)
+        #des_char_poly_Z = (1, 2 * zetaZ * wnZ, wnZ ** 2)
+        #des_poles_Z = np.roots(des_char_poly_Z)
 
         des_char_poly = np.convolve(
             np.convolve([1, 2 * zetaZ * wnZ, wnZ ** 2],

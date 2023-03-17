@@ -29,6 +29,8 @@ class VTOLDynamics:
         # sample rate at which the dynamics are propagated
         self.Ts = P.Ts
 
+        print('Mass =', self.mc + 2*self.mr)
+
 
     def update(self, u):
         # This is the external method that takes the input u at time
@@ -53,7 +55,7 @@ class VTOLDynamics:
 
         #F = fr + fl
 
-        zddot = (-(fr+fl)*np.sin(theta)-self.mu*zdot)/(self.mc+2*self.mr)
+        zddot = (-(fr+fl)*np.sin(theta)-self.mu*zdot + .1)/(self.mc+2*self.mr)  #the .1 is wind force
         hddot = (-(self.mc+2*self.mr)*self.g + (fr+fl)*np.cos(theta))/(self.mc+2*self.mr)
         thetaddot = (self.d*(fr - fl))/(self.Jc + 2*self.mr*self.d*self.d)
 

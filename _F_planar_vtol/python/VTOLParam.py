@@ -35,7 +35,7 @@ Fmax = 1000000.0  # Max Force, N
 mixing = np.linalg.inv(np.array([[1.0, 1.0], [d, -d]]))
 
 # dirty derivative parameters
-sigma = .05  # cutoff freq for dirty derivative
+sigma = .005  # cutoff freq for dirty derivative
 # beta =  # dirty derivative gain
 
 # equilibrium force
