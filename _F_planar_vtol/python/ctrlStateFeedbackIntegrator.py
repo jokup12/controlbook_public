@@ -12,8 +12,8 @@ class ctrlStateFeedback:
         zetaTheta = .707
         trZ = 10.0*trTheta
         zetaZ = .707
-        integrator_pole_lon = .1
-        integrator_pole_lat = .1
+        integrator_pole_lon = [.14]
+        integrator_pole_lat = [.13]
 
         wnH = np.pi / (2 * trH * np.sqrt(1 - zetaH**2))
         #des_char_poly_H = (1, 2 * zetaH * wnH, wnH ** 2)
@@ -28,14 +28,14 @@ class ctrlStateFeedback:
         #des_poles_Z = np.roots(des_char_poly_Z)
 
         des_char_poly_lon = np.convolve([1, 2 * zetaH * wnH, wnH ** 2],
-                                        [1, -integrator_pole_lon])
+                                        np.poly(integrator_pole_lon))
         des_poles_lon = np.roots(des_char_poly_lon)
 
 
         des_char_poly_lat = np.convolve(
                 np.convolve([1, 2 * zetaZ * wnZ, wnZ**2],
                             [1, 2 * zetaTheta * wnTheta, wnTheta**2]),
-                [1, -integrator_pole_lat])
+                np.poly(integrator_pole_lat))
         des_poles_lat = np.roots(des_char_poly_lat)
 
 
@@ -43,7 +43,7 @@ class ctrlStateFeedback:
         Mass = P.mc + 2*P.mr
 
         A_lon = np.array([[0, 1], [0, 0]])
-        B_lon = np.array([[1], [1/Mass]])
+        B_lon = np.array([[0], [1/Mass]])
         C_lon = np.array([1, 0])
         D_lon = np.array([0])
 
@@ -131,8 +131,6 @@ class ctrlStateFeedback:
         #self.hdot = x[4][0]
         #self.thetadot = x[5][0]
 
-
-
         z_ref = ref[0][0]
         h_ref = ref[1][0]
 
@@ -162,11 +160,12 @@ class ctrlStateFeedback:
         F_tilde = -self.K_lon @ x_lon + self.ki_lon*self.integratorH
         F = P.Fe/np.cos(self.theta) + F_tilde[0]
         F = F.item(0)
+        F = self.saturate(F, P.Fmax)
 
         T = -self.K_lat @ x_lat + self.ki_lat*self.integratorZ
         T = T.item(0)
 
-        print('F_t: ', F_tilde)
+        print('F_t: ', F_tilde, '  F: ', F)
         #u = np.array([[F], [T]])
         #v = P.mixing @ np.array([[F], [T]])  # changes to fr and fl
         #self.fr = v[0][0]
