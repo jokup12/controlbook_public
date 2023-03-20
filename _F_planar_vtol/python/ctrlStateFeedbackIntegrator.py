@@ -6,13 +6,13 @@ import VTOLParam as P
 
 class ctrlStateFeedback:
     def __init__(self):
-        trH = 3
-        zetaH = .8
-        trTheta = .3
+        trH = 1
+        zetaH = .6
+        trTheta = .2
         zetaTheta = .707
         trZ = 10.0*trTheta
         zetaZ = .707
-        integrator_pole_lon = [.14]
+        integrator_pole_lon = [.16]
         integrator_pole_lat = [.13]
 
         wnH = np.pi / (2 * trH * np.sqrt(1 - zetaH**2))
