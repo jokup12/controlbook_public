@@ -5,12 +5,12 @@
 #include <math.h>
 
 struct {
-  float kp_phi = 
-  float kd_phi = 
-  float kp_psi = 
-  float kd_psi = 
-  float ki_psi = 
-  float km = 
+  float kp_phi = 1.906;
+  float kd_phi = .364;
+  float kp_psi = .0423;
+  float kd_psi = .0697;
+  float ki_psi = 0;
+  float km = .33;
 } gains;
 
 #include "tuning_utilities.h"
@@ -90,8 +90,12 @@ class CtrlLatPID {
       float psi_dot_d1 = (psi - psi_d1) / Ts;
       float psi_dot = 3*psi_dot_d1 - 3*psi_dot_d2 + psi_dot_d3;      
 
-      float torque =     
-      float force = 
+      float phi_ref = gains.kp_psi * (psi_ref - psi) - gains.kd_psi*psi_dot; // + self.ki_yaw*self.integrator_psi  //#outer loop, yaw
+      float torque = gains.kp_phi * (phi_ref - phi) - gains.kd_phi*phi_dot; // + self.ki_phi*self.integrator_phi //#inner loop, roll
+            
+      float force = ((P.m1 * P.ell1 + P.m2 * P.ell2) * P.g / P.ellT) * cos(phi);
+
+      float error_psi = psi_ref - psi;
       
       // convert force and torque to pwm and send to motors
       float left_pwm = (force+torque/P.d)/(2.0*gains.km);

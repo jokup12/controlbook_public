@@ -104,6 +104,6 @@ void printState() {
   Serial.print(reference.phi);
   Serial.print(",");
   Serial.println(state.phi);
+    Serial.print(",    ");
+  Serial.println(P.km);
 }
-
-

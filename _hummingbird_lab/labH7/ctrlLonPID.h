@@ -14,10 +14,10 @@
 // Enter your current best gains in this structure.  After tuning,
 // modify the structure to reflect the tuned gains.
 struct {
-  float kp_theta = ;
-  float kd_theta = ;
-  float ki_theta = ; 
-  float km = ; 
+  float kp_theta = .0777;
+  float kd_theta = .0742;
+  float ki_theta = 0; 
+  float km = .331; 
 } gains;
 
 #include "tuning_utilities.h"
@@ -103,17 +103,18 @@ class CtrlLonPID {
       float theta_dot = 3*theta_dot_d1 - 3*theta_dot_d2 + theta_dot_d3;
 
       // compute feedback linearized force      
-      float force_fl = 
+      float force_fl =  cos(theta)*(P.m1*P.ell1 + P.m2*P.ell2)*P.g/P.ellT;
+
 
       // compute error
-      float error_theta = 
+      float error_theta = theta_ref - theta;
       
       // update integrator 
-      integrator_theta += 
+      integrator_theta += 0;
       
       // pitch control
-      float f_tilde =                        
-      float force = 
+      float f_tilde = gains.kp_theta*(theta_ref - theta) - gains.kd_theta*theta_dot;                      
+      float force = force_fl + f_tilde;
       float torque = 0.0;
       
       // convert force and torque to pwm and send to motors
