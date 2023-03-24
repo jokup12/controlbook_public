@@ -1,7 +1,7 @@
 # use this file to test your dynamics file
 import numpy as np
-from hummingbirdDynamics import hummingbirdDynamics
-hummingbird = hummingbirdDynamics()
+from hummingbirdDynamics import HummingbirdDynamics
+hummingbird = HummingbirdDynamics()
 
 flag = True
 

@@ -5,15 +5,19 @@ import hummingbirdParam as P
 class ctrlLonPID:
     def __init__(self):
         # tuning parameters
-        tr_pitch = 
-        zeta_pitch = 
-        self.ki_pitch = 
+        tr_pitch = 1.4
+        zeta_pitch = .7
+        self.ki_pitch = 0
         # gain calculation
         b_theta = P.ellT/(P.m1 * P.ell1**2 + P.m2 * P.ell2**2 + P.J1y + P.J2y)
         #print('b_theta: ', b_theta)
-        wn_pitch = 
-        self.kp_pitch = 
-        self.kd_pitch = 
+        wn_pitch = np.pi / (2 * tr_pitch * np.sqrt(1 - zeta_pitch ** 2))
+        a0_pitch = 0.0
+        a1_pitch = 0.0
+        alpha0_pitch = wn_pitch ** 2
+        alpha1_pitch = 2.0 * zeta_pitch * wn_pitch
+        self.kp_pitch = (alpha0_pitch - a0_pitch) / b_theta
+        self.kd_pitch = (alpha1_pitch - a1_pitch) / b_theta
         # print gains to terminal
         print('kp_pitch: ', self.kp_pitch)
         print('ki_pitch: ', self.ki_pitch)
@@ -32,17 +36,19 @@ class ctrlLonPID:
     def update(self, r, y):
         theta_ref = r[0][0]
         theta = y[1][0]
-        force_fl = 
+        force_fl = self.kp_pitch*(theta_ref-theta) - self.kd_pitch*self.theta_dot
+        Fe = np.cos(theta)*(P.m1*P.ell1 + P.m2*P.ell2)*P.g/P.ellT
         # compute errors
-        error_theta = 
+        error_theta = theta_ref - theta
         # update differentiators
-        self.theta_dot = 
+        self.theta_dot = ((2*P.sigma - P.Ts)/(2*P.sigma + P.Ts)) * self.theta_dot \
+                + (2/(2*P.sigma + P.Ts))*(theta-self.theta_d1)
         
         # update integrators
-        self.integrator_theta = 
+        self.integrator_theta = self.integrator_theta + (P.Ts/2)*(error_theta + self.error_theta_d1)
         
         # pitch control
-        force_unsat = 
+        force_unsat = force_fl + Fe
         force = saturate(force_unsat, -P.force_max, P.force_max)
         torque = 0.
         # convert force and torque to pwm signals

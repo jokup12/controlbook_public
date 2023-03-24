@@ -1,4 +1,4 @@
-import numpy as np 
+import numpy as np
 import hummingbirdParam as P
 
 
@@ -9,32 +9,32 @@ class HummingbirdDynamics:
             [P.phi0],  # roll angle
             [P.theta0],  # pitch angle
             [P.psi0],  # yaw angle
-            [P.phi0],  # roll rate
+            [P.phidot0],  # roll rate
             [P.thetadot0],  # pitch rate
             [P.psidot0],  # yaw rate
         ])
 
         # vary the actual physical parameters
-        self.ell1 = P.ell1 * (1.+alpha*(2.*np.random.rand()-1.))
-        self.ell2 = P.ell2 * (1.+alpha*(2.*np.random.rand()-1.))
-        self.ell3x = P.ell3x * (1.+alpha*(2.*np.random.rand()-1.))
-        self.ell3y = P.ell3y * (1.+alpha*(2.*np.random.rand()-1.))
-        self.ell3z = P.ell3z * (1.+alpha*(2.*np.random.rand()-1.))
-        self.ellT = P.ellT * (1.+alpha*(2.*np.random.rand()-1.))
-        self.d = P.d * (1.+alpha*(2.*np.random.rand()-1.))
-        self.m1 = P.m1 * (1.+alpha*(2.*np.random.rand()-1.))
-        self.m2 = P.m2 * (1.+alpha*(2.*np.random.rand()-1.))
-        self.m3 = P.m3 * (1.+alpha*(2.*np.random.rand()-1.))
-        self.J1x = P.J1x * (1.+alpha*(2.*np.random.rand()-1.))
+        self.ell1 = P.ell1 * (1. + alpha * (2. * np.random.rand() - 1.))
+        self.ell2 = P.ell2 * (1. + alpha * (2. * np.random.rand() - 1.))
+        self.ell3x = P.ell3x * (1. + alpha * (2. * np.random.rand() - 1.))
+        self.ell3y = P.ell3y * (1. + alpha * (2. * np.random.rand() - 1.))
+        self.ell3z = P.ell3z * (1. + alpha * (2. * np.random.rand() - 1.))
+        self.ellT = P.ellT * (1. + alpha * (2. * np.random.rand() - 1.))
+        self.d = P.d * (1. + alpha * (2. * np.random.rand() - 1.))
+        self.m1 = P.m1 * (1. + alpha * (2. * np.random.rand() - 1.))
+        self.m2 = P.m2 * (1. + alpha * (2. * np.random.rand() - 1.))
+        self.m3 = P.m3 * (1. + alpha * (2. * np.random.rand() - 1.))
+        self.J1x = P.J1x * (1. + alpha * (2. * np.random.rand() - 1.))
         self.J1y = P.J1y * (1. + alpha * (2. * np.random.rand() - 1.))
         self.J1z = P.J1z * (1. + alpha * (2. * np.random.rand() - 1.))
-        self.J2x = P.J2x * (1.+alpha*(2.*np.random.rand()-1.))
+        self.J2x = P.J2x * (1. + alpha * (2. * np.random.rand() - 1.))
         self.J2y = P.J2y * (1. + alpha * (2. * np.random.rand() - 1.))
         self.J2z = P.J2z * (1. + alpha * (2. * np.random.rand() - 1.))
-        self.J3x = P.J3x * (1.+alpha*(2.*np.random.rand()-1.))
+        self.J3x = P.J3x * (1. + alpha * (2. * np.random.rand() - 1.))
         self.J3y = P.J3y * (1. + alpha * (2. * np.random.rand() - 1.))
         self.J3z = P.J3z * (1. + alpha * (2. * np.random.rand() - 1.))
- 
+
     def update(self, u):
         # This is the external method that takes the input u at time
         # t and returns the output y at time t.
@@ -55,27 +55,42 @@ class HummingbirdDynamics:
         pwm_left = u[0][0]
         pwm_right = u[1][0]
         # The equations of motion go here
-        M22 = 
-        M23 = 
-        M33 = 
-        M = np.array([[, , ],
-                      [, , ],
-                      [, , ]
+        M22 = P.m1*P.ell1**2 + P.m2*P.ell2**2 + P.J2y + P.J1y*np.cos(phi)**2 + P.J1z*np.sin(phi)**2
+        M23 = (P.J1y - P.J1z)*np.sin(phi)*np.cos(phi)*np.cos(theta)
+        M33 = (P.m1*P.ell1**2 + P.m2*P.ell2**2 + P.J2z + P.J1y*np.sin(phi)**2 + P.J1z*np.cos(phi)**2)*np.cos(theta)**2 \
+                + (P.J1x + P.J2x)*np.sin(theta)**2 + P.m3*(P.ell3x**2 + P.ell3y**2) + P.J3z
+        M = np.array([
+                    [P.J1x, 0, -P.J1x*np.sin(theta)],
+                    [0, M22, M23],
+                    [-P.J1x*np.sin(theta), M23, M33]
+                    ])
+
+        N33 = 2*(P.J1x + P.J2x - P.m1*P.ell1**2 - P.m2*P.ell2**2 - P.J2z - P.J1y*np.sin(phi)**2 - P.J1z*np.cos(phi)**2)*np.sin(theta)*np.cos(theta)
+
+        C = np.array([
+                        [(P.J1y-P.J1z)*np.sin(phi)*np.cos(phi)*(thetadot**2-np.cos(theta)**2*psidot**2) + ((P.J1y-P.J1z)*(np.cos(phi)**2-np.sin(phi)**2)-P.J1x)*np.cos(theta)*thetadot*psidot],
+                        [2*(P.J1z-P.J1y)*np.sin(phi)*np.cos(phi)*phidot*thetadot + ((P.J1y-P.J1z)*(np.cos(phi)**2-np.sin(phi)**2)+P.J1x)*np.cos(theta)*phidot*psidot - .5*N33*psidot**2],
+                        [thetadot**2*(P.J1z-P.J1y)*np.sin(phi)*np.cos(phi)*np.sin(theta) + ((P.J1y-P.J1z)*(np.cos(phi)**2-np.sin(phi)**2)-P.J1x)*np.cos(theta)*phidot*thetadot
+                         + (P.J1z-P.J1y)*np.sin(phi)*np.cos(phi)*np.sin(theta)*thetadot**2 + 2*(P.J1y-P.J1z)*np.sin(phi)*np.cos(phi)*phidot*psidot
+                         + 2*(-P.m1*P.ell1**2 - P.m2*P.ell2**2 - P.J2z + P.J1x + P.J2x + P.J1y*np.sin(phi)**2 + P.J1z*np.sin(phi)**2) * np.sin(theta)*np.cos(theta)*thetadot*psidot],
                       ])
-        C = np.array([[],
-                      [],
-                      [],
-                     ])
-        partialP = np.array([[],
-                             [],
-                             [],
-                            ])
-        force = P.km * (pwm_left + pwm_right)
-        torque = self.d * P.km * (pwm_left - pwm_right)
-        tau = np.array([[],
-                        [],
-                        []])
-        B = 
+        partialP = np.array([
+                             [0],
+                             [(P.m1*P.ell1 + P.m2*P.ell2)*P.g*np.cos(theta)],
+                             [0],
+                             ])
+        force = (pwm_left + pwm_right) * P.km
+        torque = self.d * (pwm_left - pwm_right) * P.km
+        tau = np.array([
+                        [torque],
+                        [P.ellT*force*np.cos(phi)],
+                        [P.ellT*force*np.cos(theta)*np.sin(phi)-torque*np.sin(theta)]
+                        ])
+        B = np.array([
+                    [P.bphi, 0, 0],
+                    [0, P.btheta, 0],
+                    [0, 0, P.bpsi]
+                    ])
         qddot = np.linalg.inv(M) @ (-C - partialP + tau - B @ state[3:6])
         phiddot = qddot[0][0]
         thetaddot = qddot[1][0]
@@ -91,9 +106,9 @@ class HummingbirdDynamics:
 
     def h(self):
         # return y = h(x)
-        phi = 
-        theta = 
-        psi = 
+        phi = self.state[0][0]
+        theta = self.state[1][0]
+        psi = self.state[2][0]
         y = np.array([[phi], [theta], [psi]])
         return y
 

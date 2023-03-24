@@ -8,8 +8,8 @@ class ctrlPD:
         self.M = P.m1 + P.m2 + P.m3
 
         #height loop
-        trTheta = 1.5  # rise time
-        zeta = 0.707
+        trTheta = 1.4  # rise time
+        zeta = 0.7
         # desired natural frequency
         wnTheta = np.pi / (2 * trTheta * np.sqrt(1 - zeta ** 2))
         b0Theta = P.ellT / (P.m1*P.ell1**2 + P.m2*P.ell2**2 + P.J1y + P.J2y)

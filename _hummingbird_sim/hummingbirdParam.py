@@ -40,13 +40,19 @@ t_end = 100.0  # End time of simulation
 Ts = 0.01  # sample time for simulation
 t_plot = 0.1  # the plotting and animation is updated at this rate
 
+# mixing matrix
+mixing = np.linalg.inv(np.array([[1.0, 1.0], [d, -d]]))
+
 # dirty derivative parameters
 sigma = .005  # cutoff freq for dirty derivative
 # beta =  # dirty derivative gain
+#self.beta = (2 * sigma - self.Ts) / (2 * sigma + self.Ts)
 
 # saturation limits
-Fmax = 50.0               # Max force N
+Fmax = 50.0
 Fmin = 0.0
+force_max = 50.0               # Max force N
+force_min = 0.0
 PWM_max = .7
 PWM_min = 0.0
 torque_max = 5.0                # Max torque, Nm
