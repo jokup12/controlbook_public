@@ -55,7 +55,7 @@ class VTOLDynamics:
 
         #F = fr + fl
 
-        zddot = (-(fr+fl)*np.sin(theta)-self.mu*zdot + .1)/(self.mc+2*self.mr)  #the .1 is wind force
+        zddot = (-(fr+fl)*np.sin(theta)-self.mu*zdot)/(self.mc+2*self.mr)
         hddot = (-(self.mc+2*self.mr)*self.g + (fr+fl)*np.cos(theta))/(self.mc+2*self.mr)
         thetaddot = (self.d*(fr - fl))/(self.Jc + 2*self.mr*self.d*self.d)
 
