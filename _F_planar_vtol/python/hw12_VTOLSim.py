@@ -55,7 +55,7 @@ while t < P.t_end:  # main simulation loop
 
     # the pause causes the figure to be displayed during the
     # simulation
-    plt.pause(0.0001)
+    #plt.pause(0.0001)
 
 # Keeps the program from closing until the user presses a button.
 print('Press key to close')

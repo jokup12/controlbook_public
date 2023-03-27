@@ -10,8 +10,7 @@ class ctrlObserver:
         tr = 1
         zeta = .707
         integrator_pole = .35
-        tr_obs = tr/10
-        zeta_obs = .707
+
 
 
 
@@ -44,7 +43,9 @@ class ctrlObserver:
             #self.kr = -1.0 / (C @ np.linalg.inv(A - B @ self.K) @ B)
 
         #observer
-        wn_obs = np.pi / (2 * tr_obs * np.sqrt(1 - zeta**2))
+        tr_obs = tr/10
+        zeta_obs = .707
+        wn_obs = np.pi / (2 * tr_obs * np.sqrt(1 - zeta_obs**2))
         des_obsv_char_poly = [1, 2 * zeta_obs * wn_obs, wn_obs ** 2]
         des_obsv_poles = np.roots(des_obsv_char_poly)
         # Compute the gains if the system is controllable

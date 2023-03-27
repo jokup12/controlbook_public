@@ -165,7 +165,7 @@ class ctrlStateFeedback:
         T = -self.K_lat @ x_lat + self.ki_lat*self.integratorZ
         T = T.item(0)
 
-        print('F_t: ', F_tilde, '  F: ', F)
+        #print('F_t: ', F_tilde, '  F: ', F)
         #u = np.array([[F], [T]])
         #v = P.mixing @ np.array([[F], [T]])  # changes to fr and fl
         #self.fr = v[0][0]

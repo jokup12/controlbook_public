@@ -9,7 +9,7 @@ class ctrlStateFeedback:
     def __init__(self):
         tr = 1
         zeta = .707
-        integrator_pole = .35
+        integrator_pole = -.35
 
 
         #State Space Matrices
@@ -65,7 +65,7 @@ class ctrlStateFeedback:
                     + (2 / (2 * P.sigma + P.Ts)) * (self.z - self.zd1)
 
         #F = self.kp * (self.ref - self.z) - self.kd * self.zdot
-        F = -self.K @ x + self.ki*self.integrator
+        F = -self.K @ x - self.ki*self.integrator
         F = F.item(0)
         F = self.saturate(F, P.F_max)
 
