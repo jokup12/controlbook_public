@@ -20,7 +20,7 @@ thetadot0 = 0.0 # initial angular speed of the beam,rads/s
 
 # Simulation Parameters
 t_start = 0  # Start time of simulation
-t_end = 300  # End time of simulation
+t_end = 90  # End time of simulation
 Ts = .01  # sample time for simulation
 t_plot = .1  # the plotting and animation is updated at this rate
 
