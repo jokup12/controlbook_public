@@ -58,7 +58,7 @@ class ctrlPID:
         #tuning parameters for yaw
         tr_yaw = 11*tr_roll
         zeta_yaw = .9
-        self.ki_yaw = 0.0
+        self.ki_yaw = 0.001
         # gain calculation
         b_psi = P.ellT/(P.m1 * P.ell1**2 + P.m2 * P.ell2**2 + P.J1y + P.J2y)
         #print('b_psi: ', b_psi)
@@ -92,7 +92,7 @@ class ctrlPID:
         #phi_ref calculation
         self.psi_dot = ((2 * P.sigma - P.Ts) / (2 * P.sigma + P.Ts)) * self.psi_dot \
                       + (2 / (2 * P.sigma + P.Ts)) * (psi - self.psi_d1)
-        phi_ref = self.kp_yaw*(psi_ref - psi) - self.kd_yaw*self.psi_dot # + self.ki_yaw*self.integrator_psi  #outer loop, yaw
+        phi_ref = self.kp_yaw*(psi_ref - psi) - self.kd_yaw*self.psi_dot + self.ki_yaw*self.integrator_psi  #outer loop, yaw
         error_psi = psi_ref - psi
         self.integrator_psi = self.integrator_psi + (P.Ts / 2) * (error_psi + self.error_psi_d1)
 
@@ -127,7 +127,7 @@ class ctrlPID:
         fl = v[0][0]
         fr = v[1][0]
         v = np.array([[fr+fl], [P.d*(fl-fr)]])
-        print('fl: ', fl, 'fr: ', fr, 'Total Force: ', fl+fr)
+        #print('fl: ', fl, 'fr: ', fr, 'Total Force: ', fl+fr)
         #print('phi: ', phi, 'phi_d1: ', self.phi_d1)
         #print('phiref: ', phi_ref - phi)
         #print('phidot:', self.phi_dot)

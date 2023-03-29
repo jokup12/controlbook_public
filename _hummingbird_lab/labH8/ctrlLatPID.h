@@ -5,12 +5,12 @@
 #include <math.h>
 
 struct {
-  float kp_phi = 1.906;
-  float kd_phi = .364;
+  float kp_phi = .0204;
+  float kd_phi = .004;
   float kp_psi = .0423;
   float kd_psi = .0697;
-  float ki_psi = 0;
-  float km = .33;
+  float ki_psi = 0.001;
+  float km = .276;
 } gains;
 
 #include "tuning_utilities.h"
