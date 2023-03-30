@@ -33,8 +33,8 @@ while t < P.t_end:  # main simulation loop
     # updates control and dynamics at faster simulation rate
     while t < t_next_plot:
         r = reference.square(t)
-        d = 0.0#disturbance.step(t)  # input disturbance
-        n = 0.#np.array([[noise_z.random(t)], [noise_th.random(t)]])  # simulate sensor noise
+        d = disturbance.step(t)  # input disturbance
+        n = np.array([[noise_z.random(t)], [noise_th.random(t)]])  # simulate sensor noise
         x = blockBeam.state
         u, xhat, dhat = controller.update(r, y + n)  # update controller
         y = blockBeam.update(u + d)  # propagate system

@@ -7,7 +7,7 @@ class ctrlPID:
         # tuning parameters for pitch
         tr_pitch = .7
         zeta_pitch = .707
-        self.ki_pitch = .02
+        self.ki_pitch = .03
         # gain calculation
         b_theta = P.ellT / (P.m1 * P.ell1 ** 2 + P.m2 * P.ell2 ** 2 + P.J1y + P.J2y)
         # print('b_theta: ', b_theta)
@@ -55,10 +55,10 @@ class ctrlPID:
         self.phi_ref = 0.0
 
 
-        #tuning parameters for yaw
+        #tuning parameters for yaw/psi
         tr_yaw = 12*tr_roll
         zeta_yaw = .9
-        self.ki_yaw = 0.01
+        self.ki_yaw = 0.0015
         # gain calculation
         b_psi = P.ellT/(P.m1 * P.ell1**2 + P.m2 * P.ell2**2 + P.J1y + P.J2y)
         #print('b_psi: ', b_psi)
@@ -97,55 +97,63 @@ class ctrlPID:
         self.integrator_theta = self.integrator_theta + (P.Ts / 2) * (error_theta + self.error_theta_d1)
         force_unsat = force_fl + Fe
         force = saturate(force_unsat, -P.force_max, P.force_max)
+        self.theta_d1 = theta
+        self.error_theta_d1 = error_theta
+        if self.ki_pitch != 0.0:
+            self.integrator_theta = self.integrator_theta + P.Ts/self.ki_pitch*(force-force_unsat)
 
-        #phi_ref calculation
+        #phi_ref calculation, outer loop
         self.psi_dot = ((2 * P.sigma - P.Ts) / (2 * P.sigma + P.Ts)) * self.psi_dot \
                       + (2 / (2 * P.sigma + P.Ts)) * (psi - self.psi_d1)
         phi_ref = self.kp_yaw*(psi_ref - psi) - self.kd_yaw*self.psi_dot + self.ki_yaw*self.integrator_psi  #outer loop, yaw
         error_psi = psi_ref - psi
         self.integrator_psi = self.integrator_psi + (P.Ts / 2) * (error_psi + self.error_psi_d1)
+        self.psi_d1 = psi
+        self.error_psi_d1 = error_psi
 
-        #tau calculations
+
+
+        #tau calculations, inner loop
         self.phi_dot = ((2 * P.sigma - P.Ts) / (2 * P.sigma + P.Ts)) * self.phi_dot \
                        + (2 / (2 * P.sigma + P.Ts)) * (phi - self.phi_d1)
-        T_fl = self.kp_roll * (phi_ref - phi) - self.kd_roll*self.phi_dot # + self.ki_roll*self.integrator_phi #inner loop, roll
+        T_fl = self.kp_roll * (phi_ref - phi) - self.kd_roll*self.phi_dot #+ self.ki_roll*self.integrator_phi #inner loop, roll
         Te = 0
-        torque = T_fl + Te
         error_phi = phi_ref - phi
-        self.integrator_phi = self.integrator_phi + (P.Ts / 2) * (error_phi + self.error_phi_d1)
-
-
-
-
+        self.phi_d1 = phi
+        self.error_phi_d1 = error_phi
+        #self.integrator_phi = self.integrator_phi + (P.Ts / 2) * (error_phi + self.error_phi_d1)
+        torque_unsat = T_fl + Te
         # convert force and torque to pwm signals
-        pwm = np.array([[force + torque / P.d],  # u_left
-                        [force - torque / P.d]]) / (2 * P.km)  # r_right
-        #pwm[0][0] = saturate(pwm[0][0], 0, .7)
-        #pwm[1][0] = saturate(pwm[1][0], 0, .7)
+        pwm = np.array([[force + torque_unsat / P.d],  # u_left
+                        [force - torque_unsat / P.d]]) / (2 * P.km)  # r_right
         pwm = saturate(pwm, 0, .7)
 
         v = 2*P.km*pwm  #fl and fr values after saturation
         fl = v[0][0]
         fr = v[1][0]
         v = np.array([[fr+fl], [P.d*(fl-fr)]])
-        print('fl: ', fl, 'fr: ', fr, 'Total Force: ', fl+fr)
-        #print('theta diff: ', theta_ref - theta)
+        torque = v.item(1)
 
+        #antiwindup for outer loop
+        if self.ki_yaw != 0.0:
+            self.integrator_psi = self.integrator_psi + P.Ts/self.ki_yaw*(torque - torque_unsat)
+
+        #debug
+        print('psi integrator:, ', self.integrator_psi)
+        #print('fl: ', fl, 'fr: ', fr, 'Total Force: ', fl+fr)
+        #print('theta diff: ', theta_ref - theta)
         #print('phi: ', phi, 'phi_d1: ', self.phi_d1)
         #print('phiref: ', phi_ref - phi)
         #print('phidot:', self.phi_dot)
 
-
         # update all delayed variables
-        self.phi_d1 = phi
-        self.error_phi_d1 = error_phi
-        self.theta_d1 = theta
-        #self.error_theta_d1 = error_theta
-        self.psi_d1 = psi
-        self.error_psi_d1 = error_psi
+
+
+
 
         # return pwm plus reference signals
         return pwm, np.array([[phi_ref], [theta_ref], [psi_ref]]), v
+
 
 
 def saturate(u, low_limit, up_limit):
