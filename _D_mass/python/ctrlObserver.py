@@ -57,7 +57,6 @@ class ctrlObserver:
         print('ki ', self.ki)
         print('L^T: ', self.L.T)
 
-        #self.ki = 1.6
         self.errordot = 0.0 # estimated derivative of error
         self.errord1 = 0.0 # Error delayed by one sample
         self.integrator = 0.0 # integrator
