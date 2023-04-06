@@ -56,9 +56,9 @@ class ctrlPID:
 
 
         #tuning parameters for yaw/psi
-        tr_yaw = 12*tr_roll
-        zeta_yaw = .9
-        self.ki_yaw = 0.0015
+        tr_yaw = 10*tr_roll
+        zeta_yaw = .95
+        self.ki_yaw = 0.01
         # gain calculation
         b_psi = P.ellT/(P.m1 * P.ell1**2 + P.m2 * P.ell2**2 + P.J1y + P.J2y)
         #print('b_psi: ', b_psi)
@@ -99,8 +99,10 @@ class ctrlPID:
         force = saturate(force_unsat, -P.force_max, P.force_max)
         self.theta_d1 = theta
         self.error_theta_d1 = error_theta
+        #anti windup for pitch
         if self.ki_pitch != 0.0:
             self.integrator_theta = self.integrator_theta + P.Ts/self.ki_pitch*(force-force_unsat)
+
 
         #phi_ref calculation, outer loop
         self.psi_dot = ((2 * P.sigma - P.Ts) / (2 * P.sigma + P.Ts)) * self.psi_dot \
@@ -116,7 +118,7 @@ class ctrlPID:
         #tau calculations, inner loop
         self.phi_dot = ((2 * P.sigma - P.Ts) / (2 * P.sigma + P.Ts)) * self.phi_dot \
                        + (2 / (2 * P.sigma + P.Ts)) * (phi - self.phi_d1)
-        T_fl = self.kp_roll * (phi_ref - phi) - self.kd_roll*self.phi_dot #+ self.ki_roll*self.integrator_phi #inner loop, roll
+        T_fl = self.kp_roll * (phi_ref - phi) - self.kd_roll*self.phi_dot #inner loop, roll. no integrator
         Te = 0
         error_phi = phi_ref - phi
         self.phi_d1 = phi
@@ -134,12 +136,14 @@ class ctrlPID:
         v = np.array([[fr+fl], [P.d*(fl-fr)]])
         torque = v.item(1)
 
-        #antiwindup for outer loop
-        if self.ki_yaw != 0.0:
-            self.integrator_psi = self.integrator_psi + P.Ts/self.ki_yaw*(torque - torque_unsat)
+        #antiwindup for outer loop. first takes out extra torque, second just turns off the integrator if velocity is too low
+        #if self.ki_yaw != 0.0:
+        #   self.integrator_psi = self.integrator_psi + P.Ts/self.ki_yaw*(torque - torque_unsat)
+        if np.abs(self.phi_dot) < 0.01:
+            self.integrator_psi = 0
 
         #debug
-        print('psi integrator:, ', self.integrator_psi)
+        #print('psi integrator:, ', self.integrator_psi)
         #print('fl: ', fl, 'fr: ', fr, 'Total Force: ', fl+fr)
         #print('theta diff: ', theta_ref - theta)
         #print('phi: ', phi, 'phi_d1: ', self.phi_d1)

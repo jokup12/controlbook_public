@@ -5,11 +5,11 @@
 #include <math.h>
 
 struct {
-  float kp_phi = .0204;
+  float kp_phi = .0254;
   float kd_phi = .004;
   float kp_psi = .0423;
   float kd_psi = .0697;
-  float ki_psi = 0.001;
+  float ki_psi = 0.01;
   float km = .276;
 } gains;
 
@@ -98,8 +98,8 @@ class CtrlLatPID {
       float error_psi = psi_ref - psi;
       
       // convert force and torque to pwm and send to motors
-      float left_pwm = (force+torque/P.d)/(2.0*gains.km);
-      float right_pwm = (force-torque/P.d)/(2.0*gains.km);
+      float left_pwm = -.03 + (force+torque/P.d)/(2.0*gains.km);
+      float right_pwm = .03 + (force-torque/P.d)/(2.0*gains.km);
       rotors.update(left_pwm, right_pwm); 
 
       // update all delayed variables

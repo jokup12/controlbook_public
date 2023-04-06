@@ -13,7 +13,7 @@ controller = ctrlPID()
 phi_ref = SignalGenerator(amplitude=15.*np.pi/180., frequency=0.02)
 theta_ref = SignalGenerator(amplitude=15.*np.pi/180., frequency=0.05)
 psi_ref = SignalGenerator(amplitude=30.*np.pi/180., frequency=0.02)
-
+disturbance = SignalGenerator(amplitude=.02)
 
 # instantiate the simulation plots and animation
 dataPlot = DataPlotter()
@@ -28,11 +28,14 @@ while t < P.t_end:  # main simulation loop
     while t < t_next_plot:
         r = np.array([[0], [theta_ref.square(t)], [psi_ref.square(t)]])
         u, y_ref, v = controller.update(r, y)
-        y = hummingbird.update(u)  # Propagate the dynamics
-        t = t + P.Ts  # advance time by Ts
-
         force = v[0][0]
         torque = v[1][0]
+
+        d = force*.02#disturbance.step(t)
+        y = hummingbird.update(u + d)  # Propagate the dynamics
+        t = t + P.Ts  # advance time by Ts
+
+
 
         y_ref[2][0] = psi_ref.square(t)
 
