@@ -90,16 +90,18 @@ class CtrlLatPID {
       float psi_dot_d1 = (psi - psi_d1) / Ts;
       float psi_dot = 3*psi_dot_d1 - 3*psi_dot_d2 + psi_dot_d3;      
 
-      float phi_ref = gains.kp_psi * (psi_ref - psi) - gains.kd_psi*psi_dot; // + self.ki_yaw*self.integrator_psi  //#outer loop, yaw
-      float torque = gains.kp_phi * (phi_ref - phi) - gains.kd_phi*phi_dot; // + self.ki_phi*self.integrator_phi //#inner loop, roll
+      float phi_ref = gains.kp_psi * (psi_ref - psi) - gains.kd_psi*psi_dot + gains.ki_psi*integrator_psi;  //#outer loop, yaw
+      float torque = gains.kp_phi * (phi_ref - phi) - gains.kd_phi*phi_dot; //#inner loop, roll
             
       float force = ((P.m1 * P.ell1 + P.m2 * P.ell2) * P.g / P.ellT) * cos(phi);
 
       float error_psi = psi_ref - psi;
+      integrator_psi = integrator_psi + (Ts/2)*(error_psi+error_psi_d1);
+
       
       // convert force and torque to pwm and send to motors
-      float left_pwm = -.03 + (force+torque/P.d)/(2.0*gains.km);
-      float right_pwm = .03 + (force-torque/P.d)/(2.0*gains.km);
+      float left_pwm = (force+torque/P.d)/(2.0*gains.km);
+      float right_pwm = (force-torque/P.d)/(2.0*gains.km);
       rotors.update(left_pwm, right_pwm); 
 
       // update all delayed variables
