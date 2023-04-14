@@ -23,7 +23,7 @@ C_lon = tf([(P10.kdH+P10.kpH*sigma), (P10.kpH+P10.kiH*sigma), P10.kiH],
 C_lat_in = tf([(P10.kdTheta+P10.kpTheta*sigma), P10.kpTheta],
            [sigma, 1])
 C_lat_out = tf([(P10.kdZ+P10.kpZ*sigma), P10.kpZ],
-           [sigma, 1, 0])
+           [sigma, 1])
 
 
 if __name__ == '__main__':
@@ -41,6 +41,14 @@ if __name__ == '__main__':
 
     # if you want specific values at specific frequencies, you can
     # do the following (but the magnitudes are absolute, not dB)
+
+    plt.figure()
+    xfer_func = (P_lon*C_lon)._repr_latex_()
+    plt.text(0.1, 0.5, '$%s$'%xfer_func[2:-2], fontsize='xx-large')
+    plt.tick_params(axis='both', which='both', bottom=False, top=False,
+                    left=False, right=False, labelbottom=False, labelleft=False)
+    plt.title("xfer fucntion for C_lon(s)*P_lon(s)")
+
 
     #longitude controller
     omegas = [30.0]
@@ -63,7 +71,7 @@ if __name__ == '__main__':
     elif dB_flag == True:
         mag_P_lat_in_DB = 20.0*np.log10(mag_P_lat_in)
         mag_CP_lat_in_DB = 20.0*np.log10(mag_CP_lat_in)
-        print("gammaD_in: ", 10**(mag_P_lat_in_DB[0] - mag_CP_lat_in_DB[0])  /20)
+        print("gammaD_in: ", 10**(mag_P_lat_in_DB[0] - mag_CP_lat_in_DB[0]) /20)
 
     #outer lateral controller
     omegas = [.01, .1]

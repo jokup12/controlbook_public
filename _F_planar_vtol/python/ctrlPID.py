@@ -68,12 +68,23 @@ class ctrlPID:
         self.zd1 = 0.0
         self.zdot = 0.0
 
-        print('kpH: ', self.kpH)
-        print('kdH: ', self.kdH)
-        print('kpTheta: ', self.kpTheta)
-        print('kdTheta: ', self.kdTheta)
-        print('kpZ: ', self.kpZ)
-        print('kdZ: ', self.kdZ)
+        ################
+        #temporary values for testing
+        self.kpH = 4.218
+        self.kdH = 4.779
+        self.kiH = 1.0
+        self.kpTheta = 7.099
+        self.kdTheta = 1.064
+        self.kiTheta = 0
+        self.kpZ = -.147
+        self.kdZ = -.213
+        self.kiZ = 0
+
+
+        print('Longitude gains    kpH: ', self.kpH, '  kdH: ', self.kdH, '  kiH: ', self.kiH)
+        print('Inner Loop gains   kpTheta: ', self.kpTheta, '  kdTheta: ', self.kdTheta)
+        print('Outer Loop gains   kpZ: ', self.kpZ, '  kdZ: ', self.kdZ, '   kiZ: ', self.kiZ)
+
 
     def update(self, zref, href, state):
         #print(state.shape)

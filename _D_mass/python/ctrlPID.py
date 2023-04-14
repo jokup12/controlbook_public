@@ -24,9 +24,15 @@ class ctrlPID:
         self.zdot = 0.0   #estimated derivative
         self.zd1 = 0.0    #position delayed 1 sample
 
+        ################
+        #temporary values for grading
+        self.kp = 3.05
+        self.kd = 7.277
+        self.ki = 1.5
 
         print('kp: ', self.kp)
         print('kd: ', self.kd)
+        print('ki: ', self.ki)
 
     def update(self, r, state):
         self.z = state[0][0]

@@ -4,7 +4,7 @@ from control import tf, bode
 import matplotlib.pyplot as plt
 
 # flag to define if using dB or absolute scale for M(omega)
-dB_flag = False
+dB_flag = True
 
 # Compute plant transfer functions
 P_lon = tf(1/(P.mc+2*P.mr), [1, 0, 0])
