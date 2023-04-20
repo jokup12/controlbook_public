@@ -1,5 +1,25 @@
 import numpy as np
-import matplotlib.pyplot as plt
+import param as P
+import loopshape_example as L
+
+class ctrlLoop:
+    def __init__(self, method="state_space"):
+        if method == "state_space":
+            self.prefilter = transferFunction(L.F_num, L.F_den, P.Ts)
+            self.control = transferFunction(L.C_num, L.C_den, P.Ts)
+
+        elif method == "digital_filter":
+            self.prefilter = discreteFilter(L.F.num, L.F.den, P.Ts)
+            self.control = discreteFilter(L.C.num, L.C.den, P.Ts)
+
+    def update(self, r, y):
+         # prefilter the reference
+        r_filtered = r #self.prefilter.update(r)
+        # define error and update controller
+        error = r_filtered - y
+        u = self.control.update(error)
+        return u
+
 
 class transferFunction:
     def __init__(self, num, den, Ts):
@@ -39,12 +59,16 @@ class transferFunction:
 
     def update(self, u):
         x = self.rk4(u)
-        y = self.C @ x + self.D * u
+        y = self.h(u)
         return y.item(0)
 
     def f(self, state, u):
         xdot = self.A @ state + self.B * u
         return xdot
+
+    def h(self, u):
+        y = self.C @ self.state + self.D * u
+        return y
 
     def rk4(self, u):
         # Integrate ODE using Runge-Kutta 4 algorithm
@@ -55,27 +79,24 @@ class transferFunction:
         self.state += self.Ts / 6 * (F1 + 2 * F2 + 2 * F3 + F4)
         return self.state
 
-if __name__ == "__main__":
-    # instantiate the system
-    Ts = 0.01  # simulation step size
-    # system = (s + 2)/(s^3 + 4s^2 + 5s + 6)
-    #num = np.array([[1, 2]])
-    num = np.array([[7, 8, 9, 10]])
-    den = np.array([[1, 4, 5, 6]])
-    system = transferFunction(num, den, Ts)
+class discreteFilter:
+    def __init__(self, num, den, Ts):
+        self.Ts = Ts
+        sys = tf(num, den)
+        sys_d = c2d(sys, Ts, method='tustin')
+        self.den_d = sys_d.den[0][0]
+        self.num_d = sys_d.num[0][0]
+        self.prev_filt_output = np.zeros(len(self.num_d)-1)
+        self.prev_filt_input = np.zeros(len(self.den_d))
 
-    # main simulation loop
-    sim_time = 0.0
-    time = [sim_time]  # record time for plotting
-    y = system.h(0.0)
-    output = [y]  # record output for plotting
-    while sim_time < 10.0:
-        u = np.random.randn()  # input is white noise
-        y = system.update(u)  # update based on current input
-        time.append(sim_time)  # record time for plotting
-        output.append(y)  # record output for plotting
-        sim_time += Ts   # increment the simulation time
-    # plot output vs time
-    plt.plot(time, output)
-    plt.show()
-
+    def update(self, u):
+        '''
+            Discrete filter implementation for loopshaping controllers
+        '''
+        # update vector with filter inputs (u)
+        self.prev_filt_input = np.hstack(([u], self.prev_filt_input[0:-1]))
+        # use filter coefficients to calculate new output (y)
+        y = self.num_d @ self.prev_filt_input - self.den_d[1:] @ self.prev_filt_output
+        # update vector with filter outputs
+        self.prev_filt_output = np.hstack(([y], self.prev_filt_output[0:-1]))
+        return y
