@@ -36,9 +36,15 @@ C = tf([1], [1])\
 #  Prefilter Design
 ############################################
 # low pass filter
+<<<<<<< HEAD
+F = tf([1],[1])
+# p = 0.1
+# F = lt.get_control_lpf(p)
+=======
 F = tf([1],[1]) \
     * ls.lpf(p=0.4)
     #* ls.notch(p1=0.1, p2=0.3, M=1.5)
+>>>>>>> aed2968cd37c9808e5d33ed9c6b5ad771c62cf73
 
 ###########################################################
 # Extracting coefficients for controller
