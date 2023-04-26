@@ -44,6 +44,7 @@ class ctrlDisturbanceObserver :
             K1 = cnt.place(A1, B1, des_poles)
             self.K = K1[0][0:2]
             self.ki = K1[0][2]
+
         # observer design
         # Augmented Matrices
         A2 = np.concatenate((
